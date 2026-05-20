@@ -1,0 +1,7 @@
+# Ignore the virtual environment
+env/
+__pycache__/
+.DS_Store
+
+# Ignore credentials
+*.env
