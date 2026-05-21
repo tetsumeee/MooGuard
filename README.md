@@ -36,4 +36,4 @@ This project was developed for the *2025-2 IBTI|ISE Capstone Design Course* at I
 4. Execute via: `python main.py`.
 
 ---
-*Developed by Team 3. All hardware connections utilize strict I2C and SPI bus management to ensure operational stability.*
+*Developed by Team 2. All hardware connections utilize strict I2C and SPI bus management to ensure operational stability.*
