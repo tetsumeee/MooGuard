@@ -73,7 +73,7 @@ try:
             water_pct = get_water_level_data(mcp)
 
             accel = get_tilt_data()
-            tilt_x = round(accel[0], 1)
+            tilt_x = round(accel[0][0], 1)
             
             t, _ = get_th_data()
             if t is not None:
