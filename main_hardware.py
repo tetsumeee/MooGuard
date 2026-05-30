@@ -16,7 +16,7 @@ from sensors.kakao_alert import send_kakaotalk_alert
 
 # --- CRACK DETECTION ---
 # COMMENTED OUT FOR TESTING — Uncomment when ready
-# from sensors.crack_detector import capture_and_detect, save_evidence
+from sensors.crack_detector import capture_and_detect, save_evidence
 
 # 1. Physical Hardware Initialization
 print("Initializing MooGuard Production Hardware Array...")
@@ -38,12 +38,12 @@ def evaluate_landslide_risk(soil_pct, rain_pct, water_pct, tilt_x, crack_severit
     is_tilt_critical  = abs(tilt_x) >= 1.5
     is_tilt_warning   = abs(tilt_x) >= 0.8
     
-    # CRACK DETECTION FACTOR (optional)
-    # Uncomment to include crack severity in risk calculation
-    # if crack_severity == "critical":
-    #     return "EVACUATE (SURFACE RUPTURE)"
-    # elif crack_severity == "warning" and is_soil_saturated:
-    #     return "EVACUATE (SATURATED + CRACKING)"
+    CRACK DETECTION FACTOR (optional)
+    Uncomment to include crack severity in risk calculation
+    if crack_severity == "critical":
+        return "EVACUATE (SURFACE RUPTURE)"
+    elif crack_severity == "warning" and is_soil_saturated:
+        return "EVACUATE (SATURATED + CRACKING)"
     
     if is_tilt_critical:
         return "EVACUATE (SLOPE SHIFT)"
@@ -105,28 +105,28 @@ try:
 
         # --- CRACK DETECTION CYCLE (OPTIONAL) ---
         # COMMENTED OUT FOR TESTING — Uncomment and adjust interval when ready
-        # if current_time - last_crack_capture >= CRACK_CAPTURE_INTERVAL:
-        #     try:
-        #         result = capture_and_detect()
-        #         
-        #         if result:
-        #             crack_severity = result["severity"]
-        #             print(f"[CRACK DETECT] Count:{result['crack_count']} | Coverage:{result['crack_area_pct']}% | Severity:{crack_severity}")
-        #             
-        #             # Save evidence if noteworthy
-        #             save_evidence(result)
-        #             
-        #             # Push to Supabase
-        #             from sensors.alerts import update_supabase_crack
-        #             update_supabase_crack(result['crack_count'], result['crack_area_pct'], crack_severity)
-        #             
-        #             # Optional: factor into risk if critical
-        #             # if crack_severity == "critical":
-        #             #     send_emergency_sms("CRACK CRITICAL — Surface rupture detected!")
-        #         
-        #         last_crack_capture = current_time
-        #     except Exception as e:
-        #         print(f"[CRACK DETECT] ⚠️ Error: {e}")
+        if current_time - last_crack_capture >= CRACK_CAPTURE_INTERVAL:
+            try:
+                result = capture_and_detect()
+                
+                if result:
+                    crack_severity = result["severity"]
+                    print(f"[CRACK DETECT] Count:{result['crack_count']} | Coverage:{result['crack_area_pct']}% | Severity:{crack_severity}")
+                    
+                    # Save evidence if noteworthy
+                    save_evidence(result)
+                    
+                    # Push to Supabase
+                    from sensors.alerts import update_supabase_crack
+                    update_supabase_crack(result['crack_count'], result['crack_area_pct'], crack_severity)
+                    
+                    # Optional: factor into risk if critical
+                    # if crack_severity == "critical":
+                    #     send_emergency_sms("CRACK CRITICAL — Surface rupture detected!")
+                
+                last_crack_capture = current_time
+            except Exception as e:
+                print(f"[CRACK DETECT] ⚠️ Error: {e}")
 
         # --- ADAPTIVE SURVEILLANCE TIMELINE (existing camera) ---
         camera_interval = 10.0 if ("EVACUATE" in system_status or "CAUTION" in system_status) else 300.0
