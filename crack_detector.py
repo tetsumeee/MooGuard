@@ -5,6 +5,7 @@ import time
 import json
 from datetime import datetime
 from pathlib import Path
+from alerts import update_supabase_crack
 
 # ── Config ──────────────────────────────────────────────────────────────────
 CAMERA_INDEX    = 0
@@ -66,6 +67,7 @@ def run():
     cap = cv2.VideoCapture(CAMERA_INDEX)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    
 
     print("MooGuard crack detector running. Ctrl+C to stop.")
     try:
@@ -89,6 +91,9 @@ def run():
             }
             print(json.dumps(result))
 
+            # Push crack data to Supabase
+            update_supabase_crack(len(cracks), round(ratio * 100, 2), severity)
+            
             # Save evidence image + JSON when alert-worthy
             if severity != "normal":
                 slug = ts.replace(":", "-")
