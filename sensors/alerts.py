@@ -51,6 +51,26 @@ def update_supabase_crack(crack_count, crack_area_pct, severity):
         print(f"[CRACK SYNC] ❌ Crack sync failed: {e}")
 
 
+def update_supabase_crack(crack_count, crack_area_pct, severity):
+    """Pushes crack detection results from the camera to Supabase."""
+    try:
+        supabase.table('telemetry_logs').insert({
+            "crack_count": crack_count,
+            "crack_area_pct": crack_area_pct,
+            "risk_status": severity,
+            "sensor_type": "camera_crack"
+        }).execute()
+        
+        print(f"[CRACK SYNC] ✅ Crack data pushed — severity: {severity}")
+
+        # Auto-trigger SMS if crack detection flags critical state
+        if severity == "critical":
+            send_emergency_sms(f"CRACK CRITICAL — {crack_area_pct:.1f}% coverage detected")
+
+    except Exception as e:
+        print(f"[CRACK SYNC] ❌ Crack sync failed: {e}")
+
+
 def send_emergency_sms(status):
     """Dispatches a critical text message alert directly to your phone."""
     if "your_auth_token" in TWILIO_AUTH_TOKEN:
