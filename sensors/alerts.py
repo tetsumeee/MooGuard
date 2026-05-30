@@ -3,11 +3,9 @@ from supabase import create_client, Client
 from twilio.rest import Client as TwilioClient
 
 # --- 1. SUPABASE CONFIGURATION ---
-# Paste your Supabase Project URL and anon public key here
 SUPABASE_URL = "https://ubzozdnrkznhsgwhcmlu.supabase.co"
 SUPABASE_KEY = "sb_publishable_AATjrsTM0FLz35ILJEA_-A_Z3rdTEx9"
 
-# Initialize the Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- 2. TWILIO CONFIGURATION ---
@@ -16,11 +14,11 @@ TWILIO_AUTH_TOKEN  = "28d6e4b2a82ae51ac0b8607821705311"
 TWILIO_NUMBER      = "+13613016253" 
 MY_PHONE_NUMBER    = "+821057272266" 
 
+
 def update_supabase_cloud(soil_pct, rain_pct, water_pct, tilt_x, status):
     """Pushes real-time simulation metrics up to your Supabase PostgreSQL database."""
     try:
-        # The keys here must exactly match the column names in your SQL table
-        data, count = supabase.table('telemetry_logs').insert({
+        supabase.table('telemetry_logs').insert({
             "soil_moisture": soil_pct,
             "precipitation": rain_pct,
             "water_level": water_pct,
@@ -32,12 +30,32 @@ def update_supabase_cloud(soil_pct, rain_pct, water_pct, tilt_x, status):
     except Exception as e:
         print(f"[CLOUD SYNC] ❌ Supabase sync failed: {e}")
 
+
+def update_supabase_crack(crack_count, crack_area_pct, severity):
+    """Pushes crack detection results from the camera to Supabase."""
+    try:
+        supabase.table('telemetry_logs').insert({
+            "crack_count": crack_count,
+            "crack_area_pct": crack_area_pct,
+            "risk_status": severity,
+            "sensor_type": "camera_crack"
+        }).execute()
+        
+        print(f"[CRACK SYNC] ✅ Crack data pushed — severity: {severity}")
+
+        # Auto-trigger SMS if crack detection flags critical state
+        if severity == "critical":
+            send_emergency_sms(f"CRACK CRITICAL — {crack_area_pct:.1f}% coverage detected")
+
+    except Exception as e:
+        print(f"[CRACK SYNC] ❌ Crack sync failed: {e}")
+
+
 def send_emergency_sms(status):
     """Dispatches a critical text message alert directly to your phone."""
     if "your_auth_token" in TWILIO_AUTH_TOKEN:
         print("[SMS DISPATCH] ⚠️ Twilio credentials are placeholders. Skipping SMS.")
         return
-
     try:
         client = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
         message = client.messages.create(
