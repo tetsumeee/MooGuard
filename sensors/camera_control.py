@@ -11,7 +11,7 @@ class MooGuardCamera:
             # Configure a standard resolution suitable for report logging
             config = self.picam.create_still_configuration(main={"size": (1280, 720)})
             self.picam.configure(config)
-            self.picam.start()
+            self.picam.start()                                         
             self.is_ready = True
             print("CSI Camera Module Subsystem: ONLINE")
         except Exception as e:

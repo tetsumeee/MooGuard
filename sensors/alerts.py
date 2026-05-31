@@ -32,44 +32,27 @@ def update_supabase_cloud(soil_pct, rain_pct, water_pct, tilt_x, status):
 
 
 def update_supabase_crack(crack_count, crack_area_pct, severity):
-    """Pushes crack detection results from the camera to Supabase."""
+    """Updates the latest telemetry row with crack detection results."""
     try:
-        supabase.table('telemetry_logs').insert({
-            "crack_count": crack_count,
-            "crack_area_pct": crack_area_pct,
-            "risk_status": severity,
-            "sensor_type": "camera_crack"
-        }).execute()
-        
-        print(f"[CRACK SYNC] ✅ Crack data pushed — severity: {severity}")
+        latest = supabase.table('telemetry_logs')\
+            .select('id')\
+            .eq('sensor_type', 'sensor')\
+            .order('created_at', desc=True)\
+            .limit(1)\
+            .execute()
 
-        # Auto-trigger SMS if crack detection flags critical state
-        if severity == "critical":
-            send_emergency_sms(f"CRACK CRITICAL — {crack_area_pct:.1f}% coverage detected")
+        if latest.data:
+            row_id = latest.data[0]['id']
+            supabase.table('telemetry_logs').update({
+                "crack_count":    crack_count,
+                "crack_area_pct": crack_area_pct,
+            }).eq('id', row_id).execute()
+            print(f"[CRACK SYNC] ✅ Crack data updated — severity: {severity}")
+        else:
+            print("[CRACK SYNC] ⚠️ No sensor rows found to update")
 
     except Exception as e:
         print(f"[CRACK SYNC] ❌ Crack sync failed: {e}")
-
-
-def update_supabase_crack(crack_count, crack_area_pct, severity):
-    """Pushes crack detection results from the camera to Supabase."""
-    try:
-        supabase.table('telemetry_logs').insert({
-            "crack_count": crack_count,
-            "crack_area_pct": crack_area_pct,
-            "risk_status": severity,
-            "sensor_type": "camera_crack"
-        }).execute()
-        
-        print(f"[CRACK SYNC] ✅ Crack data pushed — severity: {severity}")
-
-        # Auto-trigger SMS if crack detection flags critical state
-        if severity == "critical":
-            send_emergency_sms(f"CRACK CRITICAL — {crack_area_pct:.1f}% coverage detected")
-
-    except Exception as e:
-        print(f"[CRACK SYNC] ❌ Crack sync failed: {e}")
-
 
 def send_emergency_sms(status):
     """Dispatches a critical text message alert directly to your phone."""

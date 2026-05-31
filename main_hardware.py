@@ -10,11 +10,12 @@ from sensors.rain_sensor import get_rain_sensor_data
 from sensors.water_level import get_water_level_data
 
 # Alert Notification Drivers
-from sensors.alerts import update_supabase_cloud, send_emergency_sms
-from sensors.kakao_alert import send_kakaotalk_alert
+from sensors.alerts import update_supabase_cloud
+#from sensors.kakao_alert import send_kakaotalk_alert
 
 # --- CRACK DETECTION ---
-from sensors.crack_detector import capture_and_detect, save_evidence
+from sensors.crack_detector import capture_and_detect, save_evidence, load_references
+crack_references = load_references()
 
 # 1. Physical Hardware Initialization
 print("Initializing MooGuard Production Hardware Array...")
@@ -73,7 +74,7 @@ try:
             water_pct = get_water_level_data(mcp)
 
             accel = get_tilt_data()
-            tilt_x = round(accel[0][0], 1)
+            tilt_x = round(accel[0], 1)
             
             t, _ = get_th_data()
             if t is not None:
@@ -91,8 +92,8 @@ try:
             # --- EMERGENCY DUAL-CHANNEL TELECOMMUNICATIONS ---
             if "EVACUATE" in system_status:
                 if not alert_dispatched:
-                    send_emergency_sms(system_status)
-                    send_kakaotalk_alert(system_status, soil_pct, water_pct, tilt_x)
+                    #send_emergency_sms(system_status)
+                    #send_kakaotalk_alert(system_status, soil_pct, water_pct, tilt_x)
                     alert_dispatched = True
             else:
                 alert_dispatched = False
@@ -103,7 +104,7 @@ try:
         # --- CRACK DETECTION CYCLE ---
         if current_time - last_crack_capture >= CRACK_CAPTURE_INTERVAL:
             try:
-                result = capture_and_detect()
+                result = capture_and_detect(references=crack_references)
                 
                 if result:
                     crack_severity = result["severity"]

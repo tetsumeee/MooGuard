@@ -10,12 +10,12 @@ from datetime import datetime
 def send_kakaotalk_alert(status, soil_pct, water_pct, tilt_x):
     """Send alert via Kakao Talk Messaging API to yourself"""
     
-    KAKAO_API_KEY = "frw1lVa590VAibfZxsS-FWF0nHwVSI2JAAAAAQoXEC8AAAGeeg6W2f8D-j8FVvr5"  # Get from App Settings > App Keys
+    KAKAO_API_KEY = "f0de8b12c68240b1d10a3de5e1d1edde"  # Get from App Settings > App Keys
     
     url = "https://kapi.kakao.com/v2/api/talk/memo/default/send"
     
     headers = {
-        "Authorization": f"Bearer {KAKAO_API_KEY}",
+        "Authorization": f"KakaoAK {KAKAO_API_KEY}",
         "Content-Type": "application/x-www-form-urlencoded"
     }
     
