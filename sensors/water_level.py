@@ -1,7 +1,7 @@
 import adafruit_mcp3xxx.analog_in as AnalogIn
 import adafruit_mcp3xxx.mcp3008 as MCP
 
-def get_water_level_data(mcp, min_v=0.0, max_v=2.5):
+def get_water_level_data(mcp, min_v=0.0, max_v=1):
     """
     Reads the standing water level sensor on CH3 and converts to 0-100% depth.
     """
